@@ -1,25 +1,46 @@
 import music21 as m21
 
-a = m21.note.Note("F#5")
-#a.show()
-print(a)
+n1 = m21.note.Note("F#5")
+#n1.show()
+print(n1)
 
-b = m21.note.Note("A4")
-print(b)
+n2 = m21.note.Note()
+print(n2)
 
-print(b.pitch.frequency)
+print(n2.pitch.frequency)
 
 # same result is Duration(2) because the quarter is equal 1
 d = m21.duration.Duration('half') 
 print(d.quarterLength)
 
-b.duration = d
-print(b.duration.type)
+n2.duration = d
+print(n2.duration.type)
 
-a.duration.quarterLength = 3
-print("a quarterLength =", a.duration.quarterLength)
-print("a type =", a.duration.type)
-print("a dots =", a.duration.dots)
+n1.duration.quarterLength = 1
+print("n1 quarterLength =", n1.duration.quarterLength)
+print("n1 type =", n1.duration.type)
+print("n1 dots =", n1.duration.dots)
 
-a.show('lily')
+# n1.show('lily')
+# n2.show('lily')
+
+n1.pitch.nameWithOctave = 'E-5'
+n1.duration.quarterLength = 3.0
+
+# n1.show('lily')
+
+n3 = m21.note.Note("F6")
+# n3.lyric = "I'm the Queen of the Night!"
+
+# n3.show('lily')
+
+# Now we’ll add as a lyric the name of the note itself and its pitchClassString.
+n1.quarterLength = 6.25
+n1.addLyric(n1.nameWithOctave)
+n1.addLyric('Class: %s' % n1.pitch.pitchClassString)
+n1.addLyric('ql: %s' % n1.quarterLength)
+n1.show('lily')
+
+
+
 
