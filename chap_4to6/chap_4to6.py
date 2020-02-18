@@ -37,4 +37,4 @@ biggerStream.append(stream1)
 biggerStream.show('text')
 biggerStream.show()
 
-help(m21.note.Note)
+# help(m21.note.Note)
