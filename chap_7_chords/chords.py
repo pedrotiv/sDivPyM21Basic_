@@ -51,3 +51,20 @@ s1.show()
 ######################   Post-tonal chords (in brief)   ####################
 
 # There are a lot of methods for dealing with post-tonal aspects of chords.
+
+# we will see later
+
+
+#####################   NOTES CHAPTER 8  #########################
+files = m.converter.Converter().subconvertersList('input')
+print('Input files formats that music21 can read:')
+for file in files:
+    print(file)
+files = m.converter.Converter().subconvertersList('output')
+print('\nOutputs files formats that music21 can export:')
+for file in files:
+    print(file)
+# Example using an url:
+sBach = m.converter.parse('http://kern.ccarh.org/cgi-bin/ksdata?' +
+         'l=users/craig/classical/bach/cello&file=bwv1007-01.krn&f=kern')
+sBach.show()

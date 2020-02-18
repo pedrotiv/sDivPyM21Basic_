@@ -12,7 +12,7 @@ for key in sorted(user_env.keys()):
 # path of the xml file
 print(user_env.getSettingsPath())
 
-#set the enviroment:
-path = Path("C:/Program Files (x86)/LilyPond/usr/bin/lilyPound.exe")
-user_env['lilypondPath'] = path
-print(user_env['lilypondPath'])
+# #set the enviroment:
+# path = Path("C:/Program Files (x86)/LilyPond/usr/bin/lilyPound.exe")
+# user_env['lilypondPath'] = path
+# print(user_env['lilypondPath'])
