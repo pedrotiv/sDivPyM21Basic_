@@ -19,7 +19,7 @@ s.id = 'my_stream'
 for element in s.getElementsByClass('Note'):
     print(element)
 s.show('text')
-s.show()
+# s.show()
 
 # If something is a music21Object you can exploit the attributes of the object for musical purposes.print()
 
@@ -49,7 +49,8 @@ n.groups.append('black_key')
 n.groups.append('sharped')
 print(n.groups)
 for x in s.iter.getElementsByGroup('black_key'):
-    x.notehead = 'circle-x'
+    pass 
+    # x.notehead = 'circle-x'
 # s.show()
 
 ############  .activeSite  #############
@@ -62,9 +63,35 @@ t = m.stream.Stream()
 t.id = 'new_stream'
 t.insert(4.0, n)
 print(n.activeSite)
-t.show()
+# t.show()
 # We can also change the activeSite since, of course, it belong to the stream.
 n.activeSite= s
 
 ############  .offset  #############
+# The .offset of a Music21Object is the number of quarter notes from the start of the Stream it is a part of. 
+# If we change the offset of the Note it changes it in the Stream, so that if we change the activeSite
+#  away and back, the offset is preserved.
+n.activeSite = s
+n.offset = 2.0
+n.activeSite = t
+n.activeSite = s
+print(n.offset)
+n2 = m.note.Note('G-2')
+n2.offset = 20.0
+s.insert(n2)
+n2.activeSite
+s.show()
 
+############  .priority  #############
+# If you have a sream with two or more elements at the same offset, priority, as a integer number line,
+# fix the order who one comes first. Default is zero, negative is first to positive is last.
+
+############  .classSortOrder  #############
+# Objects seem to be sorted by offset first, then priority, then when they were inserted. But what about this:
+tc = m.clef.TrebleClef()
+s.insert(0.0, tc)
+s.show('text')
+print(tc.priority, n.priority, n2.priority)
+# It’s because there is another property that aids in sorting, and that is called .classSortOrder. 
+print(tc.classSortOrder, n.classSortOrder, n2.classSortOrder)
+# any change in .classSortOrder applied to the class changes it for all its members
