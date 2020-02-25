@@ -82,7 +82,7 @@ for el in (n, n2, n3):
 
 ##########################   METHODS   ########################
 
-###########   .getOffsetBySite and .setOffsetBySite   ############
+###########   .getOffsetBySite() and .setOffsetBySite()   ############
 # These methods work as the .offset attribute but can work on any site where the object is a part of.
 s1 = m21.stream.Stream(id="s1")
 s1.insert(10, n)
@@ -93,7 +93,7 @@ n.setOffsetBySite(s1, 15.0)
 print(n.getOffsetBySite(s1))
 print(n.getOffsetBySite(s2))
 
-###########   .getOffsetBySite and .setOffsetBySite   ############
+###########   .getContextByClass()   ############
 # This is an extremely powerful tool – you might not use it often, but be assured that music21 is using 
 # it on your behalf all the time when sophisticated analysis is involved. 
 # It finds the active element matching a certain class preceeding the element. 
@@ -104,6 +104,62 @@ print('Last note of BWV66.6: ', lastNote)
 print('Where part is: ', lastNote.getContextByClass('Part'))
 print('and the key at that moment is: ', lastNote.getContextByClass('KeySignature'))
 print('and the time at that moment is: ', lastNote.getContextByClass('TimeSignature'))
+# Other example:
+gloria = m21.corpus.parse('luca/gloria')
+soprano = gloria.parts[0]
+lastTimeSignature = None
+for n in soprano.recurse().getElementsByClass('Note'):
+    thisTimeSignature = n.getContextByClass('TimeSignature')
+    if thisTimeSignature is not lastTimeSignature:
+        lastTimeSignature = thisTimeSignature
+        print('Gloria de Luca, TimeSignature:',thisTimeSignature,' at measure: ', n.measureNumber)
+# Internally .getContextByClass uses another Music21Object method called .contextSites() which is 
+# a generator that tells the system where to search next:
+print('\nExploring contextSites method: (see line 102)')
+for cs in lastNote.contextSites():
+    print(cs)
+# .contextSites returns a “ContextTuple” which is a lightweight namedtuple that has three attributes, 
+# site, offset, and recurseType.
+# The first ContextTuple says that first the elements, of site Measure 9, should be searched beginning at
+# offset 2.0 and (because recurseType is elementsFirst) working backwards to the beginning of the measure, 
+# then if the matching context isn’t found, the measure will be flattened 
+# (in case there are other voices in the measure) and anything from before offset 2.0 of that flattened stream
+#  will be searched.
+# If that fails, then the Bass part as a whole will be searched, with all elements flattened, 
+# beginning at offset 35 and working backwards. That way if the context is in another measure it will be found.
+# Then if that fails, it will look at the score as a whole, beginning at offset 35 and working backwards,
+# but only looking at things that are at the score level, not looking at elements within other parts. 
+# There may be scores where for instance, expressive markings appear at the Score level. This will find them.
+
+###########   Splitting methods   ############
+# There are three methods to split an object:
+# .splitAtQuarterLength() – splits an object into two objects at the given quarter length
+# .splitByQuarterLengths() – splits an object into two or more objects according to a list of quarter lengths
+# .splitAtDurations() – takes an object with a complex duration (such as 5.0 quarters) and 
+# splits it into notatable units.
+n = m21.note.Note('C#5')
+n.duration.type = 'whole'
+n.articulations = [m21.articulations.Staccato(), m21.articulations.Accent()]
+n.lyric = 'hi!'
+n.expressions = [m21.expressions.Mordent(), m21.expressions.Trill(), m21.expressions.Fermata()]
+# n.show()
+# Now let’s split this note just before beat 4:
+splitTuple = n.splitAtQuarterLength(3)
+s3 = m21.stream.Stream()
+s3.append(splitTuple)
+# s3.show()
+# Notice the choices that music21 made – the two notes are tied, the lyrics are sung at the beginning, 
+# the accent and mordent appear at the beginning of the note while the staccato and fermata(!) appear 
+# on the second note, while trill mark gets put onto the first note only.
+# This is part of the “batteries included” music21 approach – try to do something musically smart in most cases. 
+# In fact, it’s even a bit smarter – the splitTuple knows that there’s something called a TrillExtension spanner in
+# it which should be put into the Stream:
+for thisSpanner in splitTuple.spannerList:
+    s3.insert(0, thisSpanner)
+s3.show()
+
+
+
 
 
 
