@@ -48,7 +48,7 @@ m.keySignature = m21.key.KeySignature(4)
 # we couldn’t have flats. To do it, just specify the number of flats as a negative number. 
 # So -1 = one flat, -2 = two flats
 m.keySignature = m21.key.KeySignature(-4)
-m.show()
+# m.show()
 
 ####################### Key ######################
 # A Key is a lot like a KeySignature, but much more powerful. 
@@ -63,3 +63,21 @@ amixy = m21.key.Key('a', 'mixolydian')
 print(amixy,' that has ', amixy.sharps, ' sharps who are ', amixy.alteredPitches)
 print('Transpose this in a third major we have ',amixy.transpose('M3'))
 print('Keys know their .mode:' ,kd.mode, amixy.mode)
+print('And their tonics are: ', kd.tonic, ' and ', amixy.tonic)
+print('And the relative of ', kd, ' is ', kd.relative, ' and its parallel is ', kd.parallel)
+# And because two keys are equal if their modes and tonics are the same, this is true:
+assert kd.relative.relative == kd
+print('It is helpuful to know that: ', kd.tonicPitchNameWithCase, ' and its relative is ',
+                                                        kd.relative.tonicPitchNameWithCase)
+# Some analysis routines produce keys:
+bach = m21.corpus.parse('bwv66.6')
+fis = bach.analyze('key')
+print('The bwv66.6 key is ',  fis, ' and it has this correlation coefficient: ',
+                                                 round(fis.correlationCoefficient, 3))
+print('Some other keys that the Bach piece could have been in: \n', fis.alternateInterpretations[0:4])
+print('Some other final keys that the Bach piece could have been in: \n', fis.alternateInterpretations[-3:])
+c = bach.measures(1, 4).chordify()
+for ch in c.recurse().getElementsByClass('Chord'):
+    ch.closedPosition(inPlace=True, forceOctave=4)
+c.show()
+# stop in bwv66.6 picture at 2/3 of the page
