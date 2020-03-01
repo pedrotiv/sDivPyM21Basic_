@@ -80,4 +80,34 @@ c = bach.measures(1, 4).chordify()
 for ch in c.recurse().getElementsByClass('Chord'):
     ch.closedPosition(inPlace=True, forceOctave=4)
 c.show()
-# stop in bwv66.6 picture at 2/3 of the page
+# So, how does it know what the key is? The key analysis routines are a variation of the famous algorithm
+#  developed by Carol Krumhansl and Mark A. Schmuckler called probe-tone key finding. (used above)
+# The distribution of pitches used in the piece are compared to sample distributions of pitches 
+# for major and minor keys and the closest matches are reported.
+# Music21 can be asked to use the sample distributions of several authors, 
+# including Krumhansl and Schmuckler’s original weights:
+# bach.plot('key')
+
+# A Key object is derived from a KeySignature object and also a Scale object.
+k = m21.key.Key('E-')
+print('Eb key, its classes: ', k.classes)
+# A few methods that are present on scales that might end up being useful for Keys as well include:
+print('The 2nd degree of Eb scale is ',k.pitchFromDegree(2))
+# (octaves in 4 and 5 are chosen just to give some ordering to the pitches)
+
+#############    Key Context and Note Spelling   ##################
+
+# Key and KeySignature objects affect how notes are spelled in some situations. 
+# Let’s set up a simple situation of a F-natural whole note in D major and then B-flat minor.
+s = m21.stream.Stream()
+s.append(m21.key.Key('D'))
+s.append(m21.note.Note('F', type='whole'))
+s.append(m21.key.Key('b-', 'minor'))
+s.append(m21.note.Note('F', type='whole'))
+# s2 = s.makeNotation()
+s.show()
+# When we transpose each note up a half step (n.transpose(1)), music21 understands that the first F-natural
+#  should become F-sharp, while the second one will fit better as a G-flat.
+for n in s.recurse().notes:
+    n.transpose(1, inPlace=True)
+s.show()
