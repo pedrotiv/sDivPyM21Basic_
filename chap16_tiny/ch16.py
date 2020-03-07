@@ -75,6 +75,9 @@ tnc.parse()
 s = tnc.stream
 # s.show()
 
+######################    Modify existing tokens           ###################
+
+
 # Now that we have a way to create totally new Tokens, let’s look at ways we can modify existing tokens. 
 # Let’s first create a simple Modifier that changes the color of individual notes after they’ve been parsed:
 class ColorModifier(m21.tinyNotation.Modifier):
@@ -98,7 +101,7 @@ class HarmonyModifier(m21.tinyNotation.Modifier):
 
 tnc.modifierUnderscore = HarmonyModifier
 tnc.load('4/4 C2_maj7 D4_m E-_sus4')
-tnc.parse().stream.show('t')
+# tnc.parse().stream.show('t')
 
 # If we leave in the bass note and instead add the ChordSymbol to the stream, 
 # then we’ll be able to see it on the score:
@@ -110,5 +113,55 @@ class HarmonyModifier(m21.tinyNotation.Modifier):
 
 tnc.modifierUnderscore = HarmonyModifier
 tnc.load('4/4 C2_maj7 D4_m E-_sus4')
+# tnc.parse().stream.show()
+# tnc.parse().stream.show('t')
+
+######################    Defining a Satate for a set of tokens    ###################
+
+# Lastly are State conditions. These affect more than one Token at a time and are (generally)
+#  enclosed in curly brackets (the “TieState” is a State that works differently but is too 
+# advanced to discuss here). 
+# Let’s create a silly State first, that removes stems from notes when it’s closed:
+
+class NoStemState(m21.tinyNotation.State):
+    def end(self):
+        for n in self.affectedTokens:
+            n.stemDirection = 'none'
+    
+# Every State token has the following methods called: 
+# start(), which is called when the state is begun, 
+# affectTokenBeforeParse(tokenStr) which gives the State object the opportunity to change the 
+#       string representation of the token before it is parsed, 
+# affectTokenAfterParseBeforeModifier(music21object) which lets the music21 object be changed
+#       before the modifiers are applied, 
+# affectTokenAfterParse(music21object) which lets the state change the music21 object after
+#       all modifiers are applied, and 
+# end() which lets any object in the .affectedToken list be changed after it has been appended 
+#       to the Stream. Often end() is all you will need to set.
+
+# Now we’ll define "nostem" to be the start of a stemless state. We do this by adding 
+# the term “nostem” to the bracketStateMapping dictionary on TinyNotationConverter.
+
+
+tnc.bracketStateMapping['nostem'] = NoStemState
+# tnc.load("4/4 c4 d e f g2 a4 b c'1")
+tnc.load("4/4 c4 d nostem{e f g2 a4} b c'1")
+# tnc.parse().stream.show()
+
+# Using State to create chords. 
+# To do this, we will prevent notes from being added to the stream as they are parsed, 
+# and then put a Chord into the stream at the end:
+
+class ChordState(m21.tinyNotation.State):
+    def affectTokenAfterParse(self, n):
+       super(ChordState, self).affectTokenAfterParse(n)
+       return None # do not append Note object
+
+    def end(self):
+        ch = m21.chord.Chord(self.affectedTokens)
+        ch.duration = self.affectedTokens[0].duration
+        return ch
+
+tnc.bracketStateMapping['chord'] = ChordState
+tnc.load("2/4 C4 chord{C4 e g} F.4 chord{D8 F# A}")
 tnc.parse().stream.show()
-tnc.parse().stream.show('t')
